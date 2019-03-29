@@ -8,7 +8,7 @@ import pkg from "./package";
 import { validateUser } from "./middleware/user";
 
 const server = Hapi.server({
-  port: 4000,
+  port: process.env.PORT || 4000,
   host: "localhost"
   // routes: {
   //   files: {
