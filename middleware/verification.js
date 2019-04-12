@@ -8,9 +8,11 @@ const verifyUserExists = async (request, h) => {
   const db = await getDatabase();
   const { user_id } = request.params;
   const user = await findUserById(db, user_id);
+
   if (user) {
     return h.response(request.params);
   }
+
   throw Boom.notFound(
     `Verify User Exists: User with ID ${user_id} does not exist!`
   );
@@ -18,8 +20,11 @@ const verifyUserExists = async (request, h) => {
 
 const verifyUniqueUser = async (request, h) => {
   const db = await getDatabase();
-  const { username, email } = request.payload;
-
+  const { username, email } = pathOr(
+    request.payload,
+    ["payload", "updateUser"],
+    request
+  );
   const user = await findUserByNameOrEmail(db, username, email);
 
   if (user) {
@@ -72,11 +77,38 @@ const verifyImage = async (request, h) => {
   const isValid = validImageTypes.some(v => v === type[1]);
   if (type[0] !== "image" || !isValid) {
     throw Boom.badRequest(
-      "Verify Image: Image appears to have no type, please provide a valid image type <.png|.jpg|.svg>"
+      "Verify Image: Image appears to have no type, please provide a valid image type <.png|.jpg|.svg|.jpeg>"
     );
   }
   // pass image type to route handler
   return h.response(type[1]);
 };
 
-export { verifyUserExists, verifyUniqueUser, verifyCredentials, verifyImage };
+const verifyPassword = async (request, h) => {
+  const db = await getDatabase();
+
+  const { user_id } = pathOr("", ["params"], request);
+  const { confirmPassword } = pathOr("", ["payload"], request);
+
+  const user = await findUserById(db, user_id);
+
+  if (user) {
+    const isValid = await bcrypt.compare(confirmPassword, user.password);
+    if (isValid) {
+      // If everything checks out, send the payload through
+      // to the route handler
+      return h.response(request.payload);
+    }
+    throw Boom.badRequest("Verify Password: Incorrect password!");
+  } else {
+    throw Boom.badImplementation("Verify Password: Did not find user!");
+  }
+};
+
+export {
+  verifyUserExists,
+  verifyUniqueUser,
+  verifyCredentials,
+  verifyImage,
+  verifyPassword
+};

@@ -28,32 +28,12 @@ export const authUserSchema = Joi.alternatives().try(
 );
 
 export const updateUserSchema = Joi.object().keys({
-  username: Joi.string()
-    .min(2)
-    .max(16),
-  password: Joi.string(),
-  email: Joi.string().email({ minDomainAtoms: 2 })
+  updateUser: Joi.object({
+    username: Joi.string()
+      .min(2)
+      .max(16),
+    password: Joi.string(),
+    email: Joi.string().email({ minDomainAtoms: 2 })
+  }),
+  confirmPassword: Joi.string().required()
 });
-
-// const updateUsername = Joi.object({
-//   username: Joi.string()
-//     .min(2)
-//     .max(16)
-//     .required()
-// });
-
-// const updatePassword = Joi.object({
-//   password: Joi.string().required()
-// });
-
-// const updateEmail = Joi.object({
-//   email: Joi.string()
-//     .email({ minDomainAtoms: 2 })
-//     .required()
-// });
-
-// export const updateUserSchema = Joi.alternatives().try(
-//   updateUsername,
-//   updatePassword,
-//   updateEmail
-// );

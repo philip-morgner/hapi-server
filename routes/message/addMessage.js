@@ -1,5 +1,6 @@
 import { addMessage } from "../../middleware/message";
 import { messageSchema } from "../../schemas/message";
+import { failAction } from "../../utils/validation";
 
 exports.plugin = {
   name: "addMessage",
@@ -10,7 +11,8 @@ exports.plugin = {
       path: "/api/messages",
       options: {
         validate: {
-          payload: messageSchema
+          payload: messageSchema,
+          failAction
         }
       },
       handler: async (request, h) => {

@@ -16,7 +16,7 @@ import {
 } from "../database";
 import { hashPassword } from "../utils/bcrypt";
 
-const PUBLIC_DIR = "./server/public/";
+const PUBLIC_DIR = "../server/public";
 
 class User {
   constructor(username, email, password) {
@@ -84,6 +84,7 @@ const updateUser = async (user_id, payload) => {
     password: hashedPassword || user.password
   };
   const assignedUser = await assignUser(db, user_id, updatedUser);
+
   return assignedUser;
 };
 
@@ -144,9 +145,20 @@ const uploadFile = async (userId, file, fileType, type = "avatar") => {
     );
   }
 
+  if (type === "avatar") {
+    const fileExists = await findFile(userId, PUBLIC_DIR, "avatar");
+    if (fileExists) {
+      fs.unlink(fileExists, err => {
+        if (err) throw err;
+        console.log("fileExists was deleted");
+      });
+    }
+  }
+
   const resolveWithId = new Promise((resolve, reject) => {
     fs.writeFile(location, data, err => {
       if (err) {
+        console.log("err", err);
         reject(err);
       }
       resolve(userId);
@@ -155,17 +167,13 @@ const uploadFile = async (userId, file, fileType, type = "avatar") => {
     throw Boom.badImplementation("Upload File: something went wrong.");
   });
 
-  if (type === "avatar") {
-    return resolveWithId.then(userId => addAvatar(userId));
-  }
-
   return resolveWithId;
 };
 
 const findFile = async (userId, dir, type = "avatar") => {
   const validTypes = "@(jpg|png|svg|jpeg)";
   const file = await new Promise((resolve, reject) => {
-    let pattern = `${type}_${userId}.${validTypes}`;
+    let pattern = `/${type}_${userId}.${validTypes}`;
     let opts = {};
     if (dir) {
       pattern = dir + pattern;
@@ -181,7 +189,8 @@ const findFile = async (userId, dir, type = "avatar") => {
   }).catch(err => {
     throw Boom.badImplementation("Find File: some glob error");
   });
-  if (!file) {
+  // do not crash when avatar does not exist
+  if (!file && type !== "avatar") {
     throw Boom.notFound(`Find File: ${type} file does not exist`);
   }
   return file;

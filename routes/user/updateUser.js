@@ -1,6 +1,10 @@
 import { updateUser } from "../../middleware/user";
-import { verifyUniqueUser } from "../../middleware/verification";
+import {
+  verifyUniqueUser,
+  verifyPassword
+} from "../../middleware/verification";
 import { updateUserSchema } from "../../schemas/user";
+import { failAction } from "../../utils/validation";
 
 exports.plugin = {
   name: "updateUser",
@@ -10,14 +14,18 @@ exports.plugin = {
       method: "POST",
       path: "/api/users/{user_id}",
       config: {
-        pre: [{ method: verifyUniqueUser }],
         validate: {
-          payload: updateUserSchema
-        }
+          payload: updateUserSchema,
+          failAction
+        },
+        pre: [{ method: verifyUniqueUser }, { method: verifyPassword }]
       },
       handler: async (request, h) => {
         const { user_id } = request.params;
-        const updatedUser = await updateUser(user_id, request.payload);
+        const updatedUser = await updateUser(
+          user_id,
+          request.payload.updateUser
+        );
 
         return h
           .response(updatedUser)

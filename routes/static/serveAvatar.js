@@ -14,7 +14,7 @@ exports.plugin = {
       method: "GET",
       path: "/api/users/{user_id}/avatar",
       config: {
-        pre: [{ method: verifyUserExists }],
+        // pre: [{ method: verifyUserExists }],
         // access to "public"
         auth: false
       },

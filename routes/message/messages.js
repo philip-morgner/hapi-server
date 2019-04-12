@@ -1,6 +1,7 @@
 import { take, takeLast } from "ramda";
 import { getMessageList } from "../../middleware/message";
 import { messagesQuerySchema } from "../../schemas/message";
+import { failAction } from "../../utils/validation";
 
 exports.plugin = {
   name: "messages",
@@ -11,7 +12,8 @@ exports.plugin = {
       path: "/api/messages",
       options: {
         validate: {
-          query: messagesQuerySchema
+          query: messagesQuerySchema,
+          failAction
         }
       },
       handler: async (request, h) => {

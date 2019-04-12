@@ -3,7 +3,7 @@
 import Boom from "boom";
 import { uploadFile } from "../../middleware/user";
 import { verifyUserExists, verifyImage } from "../../middleware/verification";
-// import { addAvatar } from "../../middleware/user";
+import { addAvatar } from "../../middleware/user";
 
 exports.plugin = {
   name: "upload",
@@ -13,6 +13,9 @@ exports.plugin = {
       method: "POST",
       path: "/api/users/{user_id}/avatar",
       config: {
+        cors: {
+          origin: ["*"]
+        },
         pre: [
           { method: verifyUserExists },
           { method: verifyImage, assign: "imageType" }
@@ -29,7 +32,10 @@ exports.plugin = {
           payload: { file },
           pre: { imageType }
         } = req;
-        const response = await uploadFile(user_id, file, imageType);
+        console.log("hallo", file);
+        const response = await uploadFile(user_id, file, imageType).then(
+          userId => addAvatar(userId)
+        );
 
         return response;
       }
