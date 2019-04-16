@@ -32,7 +32,6 @@ exports.plugin = {
           payload: { file },
           pre: { imageType }
         } = req;
-        console.log("hallo", file);
         const response = await uploadFile(user_id, file, imageType).then(
           userId => addAvatar(userId)
         );

@@ -135,7 +135,7 @@ const uploadFile = async (userId, file, fileType, type = "avatar") => {
   const location = path.format({
     root: __dirname,
     dir: PUBLIC_DIR,
-    name: type + "_" + userId,
+    name: type + "_" + userId + "_" + Date.now(),
     ext: "." + fileType
   });
 
@@ -150,7 +150,6 @@ const uploadFile = async (userId, file, fileType, type = "avatar") => {
     if (fileExists) {
       fs.unlink(fileExists, err => {
         if (err) throw err;
-        console.log("fileExists was deleted");
       });
     }
   }
@@ -173,7 +172,7 @@ const uploadFile = async (userId, file, fileType, type = "avatar") => {
 const findFile = async (userId, dir, type = "avatar") => {
   const validTypes = "@(jpg|png|svg|jpeg)";
   const file = await new Promise((resolve, reject) => {
-    let pattern = `/${type}_${userId}.${validTypes}`;
+    let pattern = `/${type}_${userId}_*.${validTypes}`;
     let opts = {};
     if (dir) {
       pattern = dir + pattern;
