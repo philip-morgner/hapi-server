@@ -16,9 +16,9 @@ exports.plugin = {
   register: async (server, options) => {
     server.route({
       method: "GET",
-      path: "/api/users/{user_id}/avatar",
+      path: "/api/users/{user_id}/avatar/{lastAvatarUpdate}",
       config: {
-        // pre: [{ method: verifyUserExists }],
+        pre: [{ method: verifyUserExists }],
         // access to "public"
         auth: false
       },

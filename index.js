@@ -2,14 +2,18 @@
 
 import Hapi from "hapi";
 import Path from "path";
-import { concat } from "ramda";
 
 import pkg from "./package";
 import { validateUser } from "./middleware/user";
 
 const server = Hapi.server({
+  host: "0.0.0.0",
   port: process.env.PORT || 4000,
-  host: "0.0.0.0"
+  routes: {
+    cors: {
+      origin: ["*"]
+    }
+  }
 });
 
 const routes = [
@@ -20,7 +24,11 @@ const routes = [
 ];
 
 const init = async () => {
+  // websocket
+  await server.register(require("hapi-plugin-websocket"));
+  // auth
   await server.register(require("hapi-auth-jwt2"));
+  // static file/ directory handler
   await server.register(require("inert"));
 
   server.auth.strategy("jwt", "jwt", {
@@ -30,6 +38,10 @@ const init = async () => {
   });
 
   server.auth.default("jwt");
+
+  // does nothing
+  server.event("chat");
+  server.events.on("chat", message => console.log("ciao", message));
 
   await server.register(routes);
 

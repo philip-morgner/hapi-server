@@ -25,6 +25,7 @@ class User {
     this.email = email;
     this.password = password;
     this.hasAvatar = false;
+    this.lastAvatarUpdate = 0;
   }
 }
 
@@ -107,14 +108,20 @@ const deleteUser = async user_id => {
   return user_id;
 };
 
-const addAvatar = async user_id => {
-  const assignedUser = await updateUser(user_id, { hasAvatar: true });
+const addAvatar = async (user_id, timestamp) => {
+  const assignedUser = await updateUser(user_id, {
+    hasAvatar: true,
+    lastAvatarUpdate: timestamp
+  });
 
-  return { message: "Avatar added successfully" };
+  return { lastAvatarUpdate: timestamp };
 };
 
-const removeAvatar = async user_id => {
-  const assignedUser = await updateUser(user_id, { hasAvatar: false });
+const removeAvatar = async (user_id, timestamp) => {
+  const assignedUser = await updateUser(user_id, {
+    hasAvatar: false,
+    lastAvatarUpdate: timestamp
+  });
 
   return assignedUser;
 };
@@ -131,11 +138,12 @@ const validateUser = async (decoded, request) => {
 };
 
 const uploadFile = async (userId, file, fileType, type = "avatar") => {
+  const timestamp = Date.now();
   const data = file._data;
   const location = path.format({
     root: __dirname,
     dir: PUBLIC_DIR,
-    name: type + "_" + userId + "_" + Date.now(),
+    name: type + "_" + userId + "_" + timestamp,
     ext: "." + fileType
   });
 
@@ -154,19 +162,19 @@ const uploadFile = async (userId, file, fileType, type = "avatar") => {
     }
   }
 
-  const resolveWithId = new Promise((resolve, reject) => {
+  const resolveWithIdAndTimeStamp = new Promise((resolve, reject) => {
     fs.writeFile(location, data, err => {
       if (err) {
         console.log("err", err);
         reject(err);
       }
-      resolve(userId);
+      resolve(userId, timestamp);
     });
   }).catch(err => {
     throw Boom.badImplementation("Upload File: something went wrong.");
   });
 
-  return resolveWithId;
+  return resolveWithIdAndTimeStamp;
 };
 
 const findFile = async (userId, dir, type = "avatar") => {

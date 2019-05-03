@@ -24,6 +24,15 @@ import {
   removeUser
 } from "./user";
 
+import {
+  findChatById,
+  findChatInstanceById,
+  findAllChats,
+  createChat,
+  writeMessage,
+  removeChat
+} from "./chat";
+
 const getDatabase = () => {
   const dbDir = path.join(__dirname, "..", "..", "data", "database.json");
   const adapter = new FileAsync(dbDir);
@@ -46,5 +55,11 @@ export {
   findAllUsers,
   createUser,
   assignUser,
-  removeUser
+  removeUser,
+  findChatById,
+  findChatInstanceById,
+  findAllChats,
+  createChat,
+  writeMessage,
+  removeChat
 };

@@ -29,7 +29,6 @@ const createMessage = async (db, newMessage) => {
 };
 
 const assignMessage = (messageInstance, updatedMessage) => {
-  // check what is returned
   return messageInstance.assign(updatedMessage).write();
 };
 

@@ -24,7 +24,10 @@ exports.plugin = {
         }
       },
       handler: async (request, h) => {
+        console.log("here");
+
         const user = await addUser(request.payload);
+        console.log("TCL: user", user);
 
         return h
           .response({ access_token: createToken(user), ...user })
